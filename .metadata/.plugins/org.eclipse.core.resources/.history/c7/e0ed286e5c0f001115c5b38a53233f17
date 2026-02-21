@@ -1,0 +1,29 @@
+package com.example.demo.dto;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import lombok.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class InvoiceDTO {
+
+    @NotBlank(message = "Invoice number is required")
+    private String invoiceNumber;
+
+    @NotBlank(message = "Customer name is required")
+    private String customerName;
+
+    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email is required")
+    private String email;
+
+    @Positive(message = "Amount must be greater than 0")
+    private double amount;
+
+    private String status;
+}

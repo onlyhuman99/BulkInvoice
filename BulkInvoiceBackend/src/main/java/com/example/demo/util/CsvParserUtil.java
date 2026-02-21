@@ -1,0 +1,41 @@
+package com.example.demo.util;
+
+import com.example.demo.model.Invoice;
+import com.opencsv.CSVReader;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class CsvParserUtil {
+
+    public static List<Invoice> parse(MultipartFile file) throws Exception {
+
+        List<Invoice> invoices = new ArrayList<>();
+
+        try (CSVReader reader =
+                     new CSVReader(new InputStreamReader(file.getInputStream()))) {
+
+            String[] line;
+            reader.readNext(); // skip header
+
+            while ((line = reader.readNext()) != null) {
+
+            	Invoice invoice = new Invoice();
+            	invoice.setInvoiceNumber(line[0]);
+            	invoice.setCustomerName(line[1]);
+            	invoice.setEmail(line[3]);   // corrected index
+            	invoice.setAmount(Double.parseDouble(line[4]));  // corrected index
+            	invoice.setStatus("CREATED");
+
+                invoices.add(invoice);
+                
+                System.out.println(Arrays.toString(line));
+            }
+        }
+
+        return invoices;
+    }
+}

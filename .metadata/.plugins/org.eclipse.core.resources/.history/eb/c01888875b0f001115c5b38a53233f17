@@ -1,0 +1,11 @@
+package com.example.demo.model;
+
+@CsvBindByName
+private String invoiceNumber;
+@Data
+public class Invoice {
+    private String invoiceNumber;
+    private String customerName;
+    private String email;
+    private double amount;
+}}

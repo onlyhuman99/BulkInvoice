@@ -1,0 +1,22 @@
+package com.example.demo.util;
+
+public class PdfGeneratorUtil {
+
+    public static byte[] generateInvoicePdf(Invoice invoice) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        PdfWriter writer = new PdfWriter(baos);
+        PdfDocument pdf = new PdfDocument(writer);
+        Document document = new Document(pdf);
+
+        document.add(new Paragraph("Invoice"));
+        document.add(new Paragraph("Invoice No: " + invoice.getInvoiceNumber()));
+        document.add(new Paragraph("Customer: " + invoice.getCustomerName()));
+        document.add(new Paragraph("Email: " + invoice.getEmail()));
+        document.add(new Paragraph("Amount: ₹" + invoice.getAmount()));
+
+        document.close();
+
+        return baos.toByteArray();
+    }
+}

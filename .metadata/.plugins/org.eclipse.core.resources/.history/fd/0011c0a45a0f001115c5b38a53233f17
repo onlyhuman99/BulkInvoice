@@ -1,0 +1,27 @@
+package com.example.demo.service;
+
+@Service
+public class InvoiceService {
+
+    public byte[] generateBulkInvoices(MultipartFile file) throws Exception {
+
+        List<Invoice> invoices = CsvParserUtil.parse(file);
+
+        ByteArrayOutputStream zipBaos = new ByteArrayOutputStream();
+        ZipOutputStream zipOut = new ZipOutputStream(zipBaos);
+
+        for (Invoice invoice : invoices) {
+            byte[] pdfBytes = PdfGeneratorUtil.generateInvoicePdf(invoice);
+
+            ZipEntry entry = new ZipEntry(invoice.getInvoiceNumber() + ".pdf");
+            zipOut.putNextEntry(entry);
+            zipOut.write(pdfBytes);
+            zipOut.closeEntry();
+        }
+
+        zipOut.close();
+
+        return zipBaos.toByteArray();
+    }
+}
+}

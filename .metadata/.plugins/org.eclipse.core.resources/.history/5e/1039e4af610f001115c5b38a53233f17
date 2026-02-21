@@ -1,0 +1,30 @@
+package com.example.demo.service;
+
+import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
+import org.springframework.mail.javamail.*;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class EmailService {
+
+    private final JavaMailSender mailSender = null;
+
+    @Async
+    public void sendInvoice(String to, byte[] pdfBytes) throws Exception {
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setTo(to);
+        helper.setSubject("Your Invoice");
+        helper.setText("Please find attached invoice.");
+
+        helper.addAttachment("invoice.pdf", 
+                () -> new java.io.ByteArrayInputStream(pdfBytes));
+
+        mailSender.send(message);
+    }
+}
