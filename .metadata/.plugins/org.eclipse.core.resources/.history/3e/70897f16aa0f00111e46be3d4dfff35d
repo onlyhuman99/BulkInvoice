@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bulk Invoice Generator</title>
+</head>
+<body>
+
+<h2>Bulk Invoice Upload</h2>
+
+<form id="uploadForm">
+    <input type="file" id="fileInput" name="file" accept=".csv" required />
+    <button type="submit" id="uploadBtn">Upload</button>
+</form>
+
+<p id="statusMessage"></p>
+
+<script>
+    const form = document.getElementById('uploadForm');
+    const statusMessage = document.getElementById('statusMessage');
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const fileInput = document.getElementById('fileInput');
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        statusMessage.innerText = "Uploading...";
+
+        try {
+            const response = await fetch('/api/invoices/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error("Upload failed");
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'invoices.zip';
+            a.click();
+
+            statusMessage.innerText = "Upload Successful. ZIP downloaded.";
+        } catch (error) {
+            statusMessage.innerText = "Error occurred.";
+        }
+    });
+</script>
+
+</body>
+</html>

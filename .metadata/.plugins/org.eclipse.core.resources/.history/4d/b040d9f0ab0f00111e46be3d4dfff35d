@@ -1,0 +1,60 @@
+package com.example.demo.util;
+
+import com.example.demo.model.Invoice;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+public class CsvParserUtil {
+
+    public static List<Invoice> parse(InputStream inputStream) throws Exception {
+
+        List<Invoice> invoices = new ArrayList<>();
+
+        BufferedReader reader =
+                new BufferedReader(new InputStreamReader(inputStream));
+
+        String line;
+        boolean isHeader = true;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        
+        while ((line = reader.readLine()) != null) {
+
+            if (isHeader) {
+                isHeader = false;
+                continue;
+            }
+
+            String[] parts = line.split(",");
+
+            if (parts.length < 9) {
+                throw new RuntimeException("Invalid CSV format");
+            }
+
+            Invoice invoice = new Invoice();
+
+            invoice.setInvoiceId(parts[0].trim());
+            invoice.setInvoiceDate(
+                    LocalDate.parse(parts[1].trim(), formatter)
+            );
+            invoice.setCustomer(parts[2].trim());
+            invoice.setItem(parts[3].trim());
+            invoice.setQuantity(Integer.parseInt(parts[4].trim()));
+            invoice.setUnitPrice(Double.parseDouble(parts[5].trim()));
+            invoice.setTotalAmount(Double.parseDouble(parts[6].trim()));
+            invoice.setGst(Double.parseDouble(parts[7].trim()));
+            invoice.setGrandTotal(Double.parseDouble(parts[8].trim()));
+            invoice.setStatus("PENDING");
+
+            invoices.add(invoice);
+        }
+
+        return invoices;
+    }
+}

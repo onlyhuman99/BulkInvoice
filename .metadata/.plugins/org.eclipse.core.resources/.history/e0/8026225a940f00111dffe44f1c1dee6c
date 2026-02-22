@@ -1,0 +1,41 @@
+package com.example.demo.selenium;
+
+import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+import java.nio.file.Paths;
+import java.time.Duration;
+
+public class InvoiceUiTest {
+
+    @Test
+    void testFileUploadUsingXpathAndCss() {
+
+        System.setProperty("webdriver.chrome.driver", "C:\\chromedriver\\chromedriver.exe");
+
+        WebDriver driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+        driver.get("http://localhost:8080");
+
+        // Using XPath
+        WebElement fileInput = driver.findElement(By.xpath("//input[@type='file']"));
+
+        String absolutePath = Paths.get("test.csv").toAbsolutePath().toString();
+        fileInput.sendKeys(absolutePath);
+
+        // Using CSS selector
+        WebElement uploadBtn = driver.findElement(By.cssSelector("#uploadBtn"));
+        uploadBtn.click();
+
+        // Verify status message
+        WebElement status = driver.findElement(By.id("statusMessage"));
+
+        System.out.println(status.getText());
+
+        driver.quit();
+    }
+}

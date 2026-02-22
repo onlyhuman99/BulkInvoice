@@ -1,0 +1,40 @@
+package com.example.demo.service;
+
+import com.example.demo.model.Invoice;
+import com.example.demo.repository.InvoiceRepository;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.mock.web.MockMultipartFile;
+
+import java.util.Collections;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class InvoiceServiceTest {
+
+    @Test
+    void shouldGenerateZipFile() throws Exception {
+
+        InvoiceRepository repository = mock(InvoiceRepository.class);
+        when(repository.saveAll(anyList())).thenReturn(Collections.emptyList());
+
+        InvoiceService service = new InvoiceService(repository);
+
+        String csvContent =
+                "invoiceNumber,customerName,email,amount\n" +
+                "INV001,John Doe,john@test.com,1000";
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.csv",
+                "text/csv",
+                csvContent.getBytes()
+        );
+
+        byte[] zipBytes = service.processBulkInvoices(file);
+
+        assertNotNull(zipBytes);
+        assertTrue(zipBytes.length > 0);
+    }
+}

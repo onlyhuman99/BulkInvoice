@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 public class Invoice {
@@ -9,36 +10,47 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String invoiceNumber;
-    private String customerName;
-    private String email;
-    private double amount;
+    private String invoiceId;
+    private LocalDate invoiceDate;
+    private String customer;
+    private String item;
+    private int quantity;
+    private double unitPrice;
+    private double totalAmount;
+    private double gst;
+    private double grandTotal;
     private String status;
 
     public Invoice() {}
 
-    public Invoice(String invoiceNumber, String customerName,
-                   String email, double amount, String status) {
-        this.invoiceNumber = invoiceNumber;
-        this.customerName = customerName;
-        this.email = email;
-        this.amount = amount;
-        this.status = status;
-    }
-
     public Long getId() { return id; }
 
-    public String getInvoiceNumber() { return invoiceNumber; }
-    public void setInvoiceNumber(String invoiceNumber) { this.invoiceNumber = invoiceNumber; }
+    public String getInvoiceId() { return invoiceId; }
+    public void setInvoiceId(String invoiceId) { this.invoiceId = invoiceId; }
 
-    public String getCustomerName() { return customerName; }
-    public void setCustomerName(String customerName) { this.customerName = customerName; }
+    public LocalDate getInvoiceDate() { return invoiceDate; }
+    public void setInvoiceDate(LocalDate invoiceDate) { this.invoiceDate = invoiceDate; }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getCustomer() { return customer; }
+    public void setCustomer(String customer) { this.customer = customer; }
 
-    public double getAmount() { return amount; }
-    public void setAmount(double amount) { this.amount = amount; }
+    public String getItem() { return item; }
+    public void setItem(String item) { this.item = item; }
+
+    public int getQuantity() { return quantity; }
+    public void setQuantity(int quantity) { this.quantity = quantity; }
+
+    public double getUnitPrice() { return unitPrice; }
+    public void setUnitPrice(double unitPrice) { this.unitPrice = unitPrice; }
+
+    public double getTotalAmount() { return totalAmount; }
+    public void setTotalAmount(double totalAmount) { this.totalAmount = totalAmount; }
+
+    public double getGst() { return gst; }
+    public void setGst(double gst) { this.gst = gst; }
+
+    public double getGrandTotal() { return grandTotal; }
+    public void setGrandTotal(double grandTotal) { this.grandTotal = grandTotal; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

@@ -1,0 +1,66 @@
+package com.example.demo.performance;
+
+import com.example.demo.service.InvoiceService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+
+@SpringBootTest
+public class InvoiceScalabilityTest {
+
+    @Autowired
+    private InvoiceService invoiceService;
+
+    @Test
+    void compare_1000_vs_10000_invoices() throws Exception {
+
+        long time1000 = processInvoices(1000);
+        long time10000 = processInvoices(10000);
+
+        System.out.println("Time for 1,000 invoices  : " + time1000 + " ms");
+        System.out.println("Time for 10,000 invoices : " + time10000 + " ms");
+
+        double ratio = (double) time10000 / time1000;
+        System.out.println("Scalability Ratio (10k/1k): " + ratio);
+    }
+
+    private long processInvoices(int count) throws Exception {
+
+        String csv = generateCsv(count);
+
+        ByteArrayInputStream inputStream =
+                new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8));
+
+        long start = System.currentTimeMillis();
+
+        invoiceService.processInvoices(inputStream);
+
+        long end = System.currentTimeMillis();
+
+        return end - start;
+    }
+
+    private String generateCsv(int count) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("invoiceNumber,customerName,email,amount\n");
+
+        for (int i = 1; i <= count; i++) {
+            sb.append("INV")
+              .append(i)
+              .append(",Customer")
+              .append(i)
+              .append(",customer")
+              .append(i)
+              .append("@test.com,")
+              .append(100 + i)
+              .append("\n");
+        }
+
+        return sb.toString();
+    }
+}

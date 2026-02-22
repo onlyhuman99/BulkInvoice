@@ -7,6 +7,7 @@ import com.example.demo.util.PdfGeneratorUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -21,9 +22,17 @@ public class InvoiceService {
         this.repository = repository;
     }
 
+    // 🔹 Controller uses this
     public byte[] processBulkInvoices(MultipartFile file) throws Exception {
+        return processInvoices(file.getInputStream());
+    }
 
-        List<Invoice> invoices = CsvParserUtil.parse(file);
+    // 🔹 Performance test uses this
+    public byte[] processInvoices(InputStream inputStream) throws Exception {
+
+        List<Invoice> invoices =
+                CsvParserUtil.parse(inputStream);
+
         repository.saveAll(invoices);
 
         ByteArrayOutputStream zipBaos = new ByteArrayOutputStream();
@@ -33,7 +42,9 @@ public class InvoiceService {
 
             byte[] pdf = PdfGeneratorUtil.generate(invoice);
 
-            ZipEntry entry = new ZipEntry(invoice.getInvoiceNumber() + ".pdf");
+            ZipEntry entry =
+                    new ZipEntry(invoice.getInvoiceId() + ".pdf");
+
             zipOut.putNextEntry(entry);
             zipOut.write(pdf);
             zipOut.closeEntry();
@@ -42,6 +53,7 @@ public class InvoiceService {
         }
 
         repository.saveAll(invoices);
+
         zipOut.close();
 
         return zipBaos.toByteArray();

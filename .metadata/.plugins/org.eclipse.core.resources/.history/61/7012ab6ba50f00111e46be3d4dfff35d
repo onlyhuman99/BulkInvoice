@@ -1,0 +1,49 @@
+package com.example.demo.service;
+
+import com.example.demo.model.Invoice;
+import com.example.demo.repository.InvoiceRepository;
+import com.example.demo.util.CsvParserUtil;
+import com.example.demo.util.PdfGeneratorUtil;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.ByteArrayOutputStream;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+@Service
+public class InvoiceService {
+
+    private final InvoiceRepository repository;
+
+    public InvoiceService(InvoiceRepository repository) {
+        this.repository = repository;
+    }
+
+    public byte[] processBulkInvoices(MultipartFile file) throws Exception {
+
+        List<Invoice> invoices = CsvParserUtil.parse(file);
+        repository.saveAll(invoices);
+
+        ByteArrayOutputStream zipBaos = new ByteArrayOutputStream();
+        ZipOutputStream zipOut = new ZipOutputStream(zipBaos);
+
+        for (Invoice invoice : invoices) {
+
+            byte[] pdf = PdfGeneratorUtil.generate(invoice);
+
+            ZipEntry entry = new ZipEntry(invoice.getInvoiceNumber() + ".pdf");
+            zipOut.putNextEntry(entry);
+            zipOut.write(pdf);
+            zipOut.closeEntry();
+
+            invoice.setStatus("GENERATED");
+        }
+
+        repository.saveAll(invoices);
+        zipOut.close();
+
+        return zipBaos.toByteArray();
+    }
+}

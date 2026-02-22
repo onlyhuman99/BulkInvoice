@@ -1,0 +1,34 @@
+package com.example.demo.util;
+
+import com.example.demo.model.Invoice;
+import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockMultipartFile;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class CsvParserUtilTest {
+
+    @Test
+    void shouldParseValidCsvFile() throws Exception {
+
+        String csvContent =
+                "invoiceNumber,customerName,email,amount\n" +
+                "INV001,John Doe,john@test.com,1000\n" +
+                "INV002,Jane Doe,jane@test.com,2000";
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.csv",
+                "text/csv",
+                csvContent.getBytes()
+        );
+
+        List<Invoice> invoices = CsvParserUtil.parse(file);
+
+        assertEquals(2, invoices.size());
+        assertEquals("INV001", invoices.get(0).getInvoiceNumber());
+        assertEquals(1000.0, invoices.get(0).getAmount());
+    }
+}

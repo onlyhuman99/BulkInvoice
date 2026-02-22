@@ -1,39 +1,58 @@
 package com.example.demo.util;
 
 import com.example.demo.model.Invoice;
-import com.opencsv.CSVReader;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class CsvParserUtil {
 
-    public static List<Invoice> parse(MultipartFile file) throws Exception {
+    public static List<Invoice> parse(InputStream inputStream) throws Exception {
 
         List<Invoice> invoices = new ArrayList<>();
 
-        try (CSVReader reader =
-                     new CSVReader(new InputStreamReader(file.getInputStream()))) {
+        BufferedReader reader =
+                new BufferedReader(new InputStreamReader(inputStream));
 
-            String[] line;
-            reader.readNext(); // skip header
+        String line;
+        boolean isHeader = true;
 
-            while ((line = reader.readNext()) != null) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        
+        while ((line = reader.readLine()) != null) {
 
-            	Invoice invoice = new Invoice();
-            	invoice.setInvoiceNumber(line[0]);
-            	invoice.setCustomerName(line[1]);
-            	invoice.setEmail(line[3]);   // corrected index
-            	invoice.setAmount(Double.parseDouble(line[4]));  // corrected index
-            	invoice.setStatus("CREATED");
-
-                invoices.add(invoice);
-                
-                System.out.println(Arrays.toString(line));
+            if (isHeader) {
+                isHeader = false;
+                continue;
             }
+
+            String[] parts = line.split(",");
+
+            if (parts.length < 9) {
+                throw new RuntimeException("Invalid CSV format");
+            }
+
+            Invoice invoice = new Invoice();
+
+            invoice.setInvoiceId(parts[0].trim());
+            invoice.setInvoiceDate(
+                    LocalDate.parse(parts[1].trim())
+            );
+            invoice.setCustomer(parts[2].trim());
+            invoice.setItem(parts[3].trim());
+            invoice.setQuantity(Integer.parseInt(parts[4].trim()));
+            invoice.setUnitPrice(Double.parseDouble(parts[5].trim()));
+            invoice.setTotalAmount(Double.parseDouble(parts[6].trim()));
+            invoice.setGst(Double.parseDouble(parts[7].trim()));
+            invoice.setGrandTotal(Double.parseDouble(parts[8].trim()));
+            invoice.setStatus("PENDING");
+
+            invoices.add(invoice);
         }
 
         return invoices;
